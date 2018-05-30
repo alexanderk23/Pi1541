@@ -122,6 +122,7 @@ Options::Options(void)
 	, deviceID(8)
 	, onResetChangeToStartingFolder(0)
 	, extraRAM(0)
+	, enableRAMBOard(0)
 	, disableSD2IECCommands(0)
 	, supportUARTInput(0)
 	, graphIEC(0)
@@ -136,6 +137,7 @@ Options::Options(void)
 	, screenHeight(768)
 {
 	strcpy(ROMFontName, "chargen");
+	starFileName[0] = 0;
 	ROMName[0] = 0;
 	ROMNameSlot2[0] = 0;
 	ROMNameSlot3[0] = 0;
@@ -173,6 +175,12 @@ void Options::Process(char* buffer)
 			unsigned nValue = 0;
 			if ((nValue = GetDecimal(pValue)) != INVALID_VALUE)
 				extraRAM = nValue;
+		}
+		else if (strcasecmp(pOption, "RAMBOard") == 0)
+		{
+			unsigned nValue = 0;
+			if ((nValue = GetDecimal(pValue)) != INVALID_VALUE)
+				enableRAMBOard = nValue;
 		}
 		else if (strcasecmp(pOption, "DisableSD2IECCommands") == 0)
 		{
@@ -249,6 +257,10 @@ void Options::Process(char* buffer)
 		else if ((strcasecmp(pOption, "Font") == 0))
 		{
 			strncpy(ROMFontName, pValue, 255);
+		}
+		else if ((strcasecmp(pOption, "StarFileName") == 0))
+		{
+			strncpy(starFileName, pValue, 255);
 		}
 		else if ((strcasecmp(pOption, "ROM") == 0) || (strcasecmp(pOption, "ROM1") == 0))
 		{
