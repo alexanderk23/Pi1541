@@ -52,7 +52,7 @@ extern unsigned versionMinor;
 		if (CheckATN()) return true;\
 	} while (checkStatus)
 
-#define VERSION_OFFSET_IN_DIR_HEADER 17
+#define VERSION_OFFSET_IN_DIR_HEADER 16
 static u8 DirectoryHeader[] =
 {
 	1, 4,	// BASIC start address
@@ -64,7 +64,7 @@ static u8 DirectoryHeader[] =
 	0x22,	// Quote
 	0x20,	// Space
 	'P', 'I', ' ', '2', 'A',	// ID, Dos Disk 2A
-	00
+	0x00
 };
 
 static const u8 DirectoryBlocksFree[] = {
@@ -110,24 +110,11 @@ static u8 blankD64DIRBAM[] =
 
 static char ErrorMessage[64];
 
-static u8* InsertNumber(u8* msg, u8 value)
-{
-	if (value >= 100)
-	{
-		*msg++ = '0' + value / 100;
-		value %= 100;
-	}
-	*msg++ = '0' + value / 10;
-	*msg++ = '0' + value % 10;
-	return msg;
-}
-
 static void SetHeaderVersion()
 {
 	u8* ptr = DirectoryHeader + VERSION_OFFSET_IN_DIR_HEADER;
-	ptr = InsertNumber(ptr, versionMajor);
-	*ptr++ = '.';
-	ptr = InsertNumber(ptr, versionMinor);
+	int len = snprintf((char *) ptr, 8, "%d.%02d", versionMajor, versionMinor);
+	*(ptr+len) = 0x20;
 }
 
 #define ERROR_00_OK 0
@@ -168,6 +155,7 @@ static void SetHeaderVersion()
 void Error(u8 errorCode, u8 track = 0, u8 sector = 0)
 {
 	char* msg = "UNKNOWN";
+	char version[64];
 	switch (errorCode)
 	{
 		case ERROR_00_OK:
@@ -177,7 +165,8 @@ void Error(u8 errorCode, u8 track = 0, u8 sector = 0)
 			msg = "WRITE ERROR";
 		break;
 		case ERROR_73_DOSVERSION:
-			msg = "PI1541";
+			snprintf(version, 64, "SD2IEC V0.1 / PI1541 V%d.%02d", versionMajor, versionMinor);
+			msg = version;
 		break;
 		case ERROR_30_SYNTAX_ERROR:
 		case ERROR_31_SYNTAX_ERROR:
